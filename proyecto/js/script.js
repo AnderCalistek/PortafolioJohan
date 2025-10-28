@@ -5,6 +5,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const navLinks = document.querySelectorAll('a.nav-link');
   const sections = document.querySelectorAll('section[id]');
   const backToTop = document.getElementById('back-to-top');
+  const header = document.querySelector('header');
+
+  // Manejo de la transparencia del header
+  const handleHeaderTransparency = () => {
+    if (window.scrollY > 50) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+  };
+
+  window.addEventListener('scroll', handleHeaderTransparency);
+  handleHeaderTransparency(); // Llamada inicial
 
   // --- Menú móvil con animación y ARIA ---
   if (menuBtn && mobileMenu) {
@@ -76,20 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     backToTop.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  }
-
-  // --- Preview de foto de perfil (upload) ---
-  const photoInput = document.getElementById('profile-photo-input');
-  const profilePreview = document.getElementById('profile-preview');
-  if (photoInput && profilePreview) {
-    photoInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      if (!file.type.startsWith('image/')) return;
-      const reader = new FileReader();
-      reader.onload = () => { profilePreview.src = reader.result; };
-      reader.readAsDataURL(file);
     });
   }
 
