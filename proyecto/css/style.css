@@ -1,22 +1,182 @@
-/* Suaviza el desplazamiento al hacer clic en los enlaces de anclaje */
+/* ===== Reset y animaciones ===== */
 html {
-    scroll-behavior: smooth;
+  scroll-behavior: smooth;
 }
 
-/* Clases para la animación de aparición (fade-in) */
 .fade-in {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 1s ease forwards;
 }
 
-.fade-in.is-visible {
+@keyframes fadeInUp {
+  to {
     opacity: 1;
     transform: translateY(0);
+  }
 }
 
-/* Clase para el enlace activo en la navegación */
-.nav-active {
-    color: #3b82f6; /* Color de acento */
-    font-weight: 600;
+/* ===== Componentes ===== */
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.section-subtitle {
+  color: #64748b;
+  font-size: 1.1rem;
+}
+
+.card {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 1rem;
+}
+
+.card-text {
+  color: #475569;
+  line-height: 1.6;
+}
+
+.list-check li {
+  position: relative;
+  padding-left: 1.8rem;
+  color: #334155;
+  margin-bottom: 0.75rem;
+}
+
+.list-check li::before {
+  content: "✔";
+  position: absolute;
+  left: 0;
+  color: #2563eb;
+}
+
+/* Botones */
+.btn-primary {
+  display: inline-block;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  padding: 0.9rem 2rem;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+  transform: scale(1.05);
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.input:focus {
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #334155;
+  font-weight: 500;
+}
+
+/* ===== Mobile menu animations ===== */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-6px); }
+}
+
+.mobile-open {
+  animation: slideDown 260ms ease forwards;
+}
+
+.mobile-close {
+  animation: slideUp 200ms ease forwards;
+}
+
+/* Back to top */
+#back-to-top {
+  z-index: 60;
+}
+
+/* Nav link underline micro-interaction */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  height: 3px;
+  width: 0;
+  background: #2563eb;
+  border-radius: 9999px;
+  transition: width 240ms ease;
+}
+.nav-link:hover::after, .nav-link.active::after {
+  width: 100%;
+}
+
+/* Perfil (preview) */
+#profile-preview-container {
+  width: 96px;
+  height: 96px;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+#profile-preview {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Botones copy */
+.copy-btn {
+  background: #2563eb;
+  color: #fff;
+  padding: 0.6rem 0.8rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  transition: transform 180ms ease, background 180ms ease;
+}
+.copy-btn:hover { transform: scale(1.03); }
+.copy-btn.bg-green-600 { background: #16a34a !important; }
+
+/* Ajustes responsivos para el hero input */
+@media (max-width: 640px) {
+  #profile-preview-container { width: 72px; height: 72px; }
 }

@@ -1,82 +1,112 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- 1. Control del Menú Móvil ---
-    const menuButton = document.getElementById('mobile-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const iconOpen = document.getElementById('icon-open');
-    const iconClose = document.getElementById('icon-close');
+  // Elementos principales
+  const menuBtn = document.getElementById('menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const navLinks = document.querySelectorAll('a.nav-link');
+  const sections = document.querySelectorAll('section[id]');
+  const backToTop = document.getElementById('back-to-top');
 
-    if (menuButton) {
-        menuButton.addEventListener('click', () => {
-            const isExpanded = menuButton.getAttribute('aria-expanded') === 'true';
-            menuButton.setAttribute('aria-expanded', !isExpanded);
-            mobileMenu.classList.toggle('hidden');
-            iconOpen.classList.toggle('hidden');
-            iconClose.classList.toggle('hidden');
-        });
-    }
+  // --- Menú móvil con animación y ARIA ---
+  if (menuBtn && mobileMenu) {
+    menuBtn.addEventListener('click', () => {
+      const expanded = menuBtn.getAttribute('aria-expanded') === 'true';
+      menuBtn.setAttribute('aria-expanded', String(!expanded));
 
-    // Cierra el menú móvil al hacer clic en un enlace
-    const mobileLinks = document.querySelectorAll('.nav-link-mobile');
-    mobileLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            if (!mobileMenu.classList.contains('hidden')) {
-                mobileMenu.classList.add('hidden');
-                menuButton.setAttribute('aria-expanded', 'false');
-                iconOpen.classList.remove('hidden');
-                iconClose.classList.add('hidden');
-            }
-        });
+      if (mobileMenu.classList.contains('hidden')) {
+        mobileMenu.classList.remove('hidden');
+        mobileMenu.classList.remove('mobile-close');
+        mobileMenu.classList.add('mobile-open');
+        mobileMenu.setAttribute('aria-hidden', 'false');
+      } else {
+        // play close animation then hide
+        mobileMenu.classList.remove('mobile-open');
+        mobileMenu.classList.add('mobile-close');
+        mobileMenu.setAttribute('aria-hidden', 'true');
+        setTimeout(() => mobileMenu.classList.add('hidden'), 220);
+      }
     });
 
-    // --- 2. Animación de Aparición (Fade-in) al hacer Scroll ---
-    const fadeInElements = document.querySelectorAll('.fade-in');
-    
-    if ("IntersectionObserver" in window) {
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                }
-            });
-        }, {
-            threshold: 0.1 // El elemento se activa cuando es visible en un 10%
+    // Cerrar menú móvil al hacer click en un enlace (mejor UX)
+    mobileMenu.querySelectorAll('a.nav-link').forEach(a => {
+      a.addEventListener('click', () => {
+        if (!mobileMenu.classList.contains('hidden')) {
+          menuBtn.setAttribute('aria-expanded', 'false');
+          mobileMenu.classList.remove('mobile-open');
+          mobileMenu.classList.add('mobile-close');
+          setTimeout(() => mobileMenu.classList.add('hidden'), 220);
+        }
+      });
+    });
+  }
+
+  // --- Scroll-Spy (IntersectionObserver) ---
+  if ('IntersectionObserver' in window && sections.length) {
+    const spy = new IntersectionObserver((entries) => {
+      let current = null;
+      entries.forEach(entry => {
+        if (entry.isIntersecting) current = entry.target.id;
+      });
+
+      if (current) {
+        navLinks.forEach(link => {
+          const section = link.getAttribute('data-section') || link.getAttribute('href')?.replace('#','');
+          if (section === current) {
+            link.classList.add('active');
+            link.classList.add('font-semibold');
+            link.classList.add('text-primary');
+          } else {
+            link.classList.remove('active','font-semibold','text-primary');
+          }
         });
+      }
+    }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
 
-        fadeInElements.forEach(el => observer.observe(el));
-    } else {
-        // Fallback para navegadores antiguos: simplemente muestra todo
-        fadeInElements.forEach(el => el.classList.add('is-visible'));
-    }
+    sections.forEach(s => spy.observe(s));
+  }
 
-    // --- 3. Scroll-Spy (Resaltar enlace de navegación activo) ---
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-link');
-    const mobileNavLinks = document.querySelectorAll('.nav-link-mobile');
-
-    const removeActiveClasses = () => {
-        navLinks.forEach(link => link.classList.remove('nav-active'));
-        mobileNavLinks.forEach(link => link.classList.remove('nav-active'));
+  // --- Back to top ---
+  if (backToTop) {
+    const toggle = () => {
+      if (window.scrollY > 420) backToTop.classList.remove('hidden');
+      else backToTop.classList.add('hidden');
     };
 
-    const scrollSpyObserver = new IntersectionObserver((entries) => {
-        let currentSectionId = null;
+    toggle();
+    window.addEventListener('scroll', toggle);
 
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                currentSectionId = entry.target.getAttribute('id');
-            }
-        });
-        
-        // Si hay una sección visible, actualiza los enlaces
-        if (currentSectionId) {
-            removeActiveClasses();
-            document.querySelector(`.nav-link[data-section="${currentSectionId}"]`)?.classList.add('nav-active');
-            document.querySelector(`.nav-link-mobile[data-section="${currentSectionId}"]`)?.classList.add('nav-active');
-        }
-    }, {
-        rootMargin: "-50% 0px -50% 0px", // Activa cuando la sección está en el medio de la pantalla
-        threshold: 0
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
+  }
 
-    sections.forEach(section => scrollSpyObserver.observe(section));
+  // --- Preview de foto de perfil (upload) ---
+  const photoInput = document.getElementById('profile-photo-input');
+  const profilePreview = document.getElementById('profile-preview');
+  if (photoInput && profilePreview) {
+    photoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = () => { profilePreview.src = reader.result; };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // --- Copy-to-clipboard para datos de contacto ---
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const text = btn.getAttribute('data-copy');
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        const original = btn.innerHTML;
+        btn.innerHTML = 'Copiado ✓';
+        btn.classList.add('bg-green-600');
+        setTimeout(() => { btn.innerHTML = original; btn.classList.remove('bg-green-600'); }, 1400);
+      } catch (err) {
+        console.error('No se pudo copiar', err);
+      }
+    });
+  });
 });
