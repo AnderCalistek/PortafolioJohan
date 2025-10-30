@@ -108,4 +108,46 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  // --- Animar timeline y elementos con fade-up ---
+  if ('IntersectionObserver' in window) {
+    const fadeEls = document.querySelectorAll('.fade-up');
+    const fadeObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          fadeObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    fadeEls.forEach(el => fadeObserver.observe(el));
+  }
+
+  // Animar la línea del timeline (dibujado)
+  const timelineContainer = document.querySelector('.timeline-container');
+  if (timelineContainer && 'IntersectionObserver' in window) {
+    const line = timelineContainer.querySelector('.timeline-line');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          if (line) line.classList.add('drawn');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    observer.observe(timelineContainer);
+  }
+
+  // Mejora accesible: mostrar texto alternativo en tooltips si existen
+  document.querySelectorAll('.timeline-item').forEach(item => {
+    const tooltip = item.querySelector('.timeline-tooltip');
+    if (tooltip) {
+      // permitimos enfocar para accesibilidad
+      item.setAttribute('tabindex', '0');
+      item.addEventListener('focus', () => tooltip.classList.add('visible'));
+      item.addEventListener('blur', () => tooltip.classList.remove('visible'));
+    }
+  });
 });
